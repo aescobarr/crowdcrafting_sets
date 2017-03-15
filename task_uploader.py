@@ -24,6 +24,11 @@ RECORD_LIMIT = config.params['RECORD_LIMIT']
 counter = 0
 endloop = False
 
+if config.params['PROJECT_ID'] == 1:
+    k_input = input("Work will be executed against PRODUCTION project. Are you ABSOLUTELY SURE YOU WANT TO PROCEED? (Y/N)")
+    if k_input != 'Y':
+        sys.exit()
+
 def nap(nap_interval,total_time):
     nap_time = nap_interval
     remaining_nap_time = total_time
@@ -65,11 +70,11 @@ reports_passed_coarse_filter = Report.objects.filter(creation_time__gte=datetime
 all_reports = reports_passed_coarse_filter.exclude(version_UUID__in=reports_in_pybossa)
 reports_filtered = filter(lambda x: not x.deleted and x.latest_version, all_reports)
 
-data = []
-
 if len(reports_filtered) == 0:
     print "No pictures to upload, all done!"
-    exit()
+    sys.exit()
+
+added_pictures = 0
 
 for report in reports_filtered:
     the_photos = Photo.objects.filter(report__version_UUID=report.version_UUID)
@@ -83,6 +88,7 @@ for report in reports_filtered:
             print "Uploading task for picture - " + photo.uuid + " ,report - " + report.version_UUID
             res = requests.post(BASE_URL + TASK_ENDPOINT + '?api_key=' + API_KEY, data=data, headers=headers)
             if res.status_code == 200:
+                added_pictures = added_pictures + 1
                 print "Upload successful!"
                 if int(res.headers['X-RateLimit-Remaining']) < 10:
                     nap(10, 300)
@@ -90,3 +96,6 @@ for report in reports_filtered:
                     pass
             else:
                 print "Upload failed!"
+
+if added_pictures == 0 and len(reports_filtered) > 0:
+    print "No pictures uploaded, probably everything is up to date. All done!"
