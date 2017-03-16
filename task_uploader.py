@@ -24,10 +24,12 @@ RECORD_LIMIT = config.params['RECORD_LIMIT']
 counter = 0
 endloop = False
 
+'''
 if config.params['PROJECT_ID'] == 1:
     k_input = input("Work will be executed against PRODUCTION project. Are you ABSOLUTELY SURE YOU WANT TO PROCEED? (Y/N)")
     if k_input != 'Y':
         sys.exit()
+'''
 
 def nap(nap_interval,total_time):
     nap_time = nap_interval
