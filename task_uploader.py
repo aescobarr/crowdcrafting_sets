@@ -5,6 +5,7 @@ import time
 import os, sys
 from django.core.wsgi import get_wsgi_application
 import config
+import datetime as DT
 
 proj_path = "/home/webuser/webapps/tigaserver/"
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tigaserver_project.settings")
@@ -67,8 +68,12 @@ while not (endloop):
         print "Failed to obtain records up to " + str(offset)
 
 reports_in_tigaserver = []
+#this is an additional precaution. Make sure that all reports have been seen by someone in the coarse filter (most recent report
+#in list is at least three days old)
+today = DT.date.today()
+three_days_ago = today - DT.timedelta(days=3)
 
-reports_passed_coarse_filter = Report.objects.filter(creation_time__gte=datetime.date(2016, 01, 13)).exclude(note__icontains='#345').exclude(photos=None).exclude(type='site').exclude(hide=True)
+reports_passed_coarse_filter = Report.objects.filter(creation_time__gte=datetime.date(2016, 01, 13)).filter(creation_time__lt=three_days_ago).exclude(note__icontains='#345').exclude(photos=None).exclude(type='site').exclude(hide=True)
 all_reports = reports_passed_coarse_filter.exclude(version_UUID__in=reports_in_pybossa)
 reports_filtered = filter(lambda x: not x.deleted and x.latest_version, all_reports)
 
