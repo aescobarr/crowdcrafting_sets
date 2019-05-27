@@ -68,7 +68,7 @@ while not (endloop):
 
 reports_in_tigaserver = []
 
-reports_passed_coarse_filter = Report.objects.filter(creation_time__gte=datetime.date(2016, 01, 13)).exclude(note__icontains='#345').exclude(photos=None).exclude(hide=True)
+reports_passed_coarse_filter = Report.objects.filter(creation_time__gte=datetime.date(2016, 01, 13)).exclude(note__icontains='#345').exclude(photos=None).exclude(type='site').exclude(hide=True)
 all_reports = reports_passed_coarse_filter.exclude(version_UUID__in=reports_in_pybossa)
 reports_filtered = filter(lambda x: not x.deleted and x.latest_version, all_reports)
 
